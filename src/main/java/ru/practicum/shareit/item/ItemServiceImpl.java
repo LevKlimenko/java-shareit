@@ -26,6 +26,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto update(Long itemId, Long userId, ItemDto itemDto) {
         userService.findById(userId);
+        checkUpdate(itemId,ItemMapper.toItem(findById(itemId)));
         Item item = itemRepository.update(itemId, userId, ItemMapper.toItem(itemDto));
         return ItemMapper.toItemDto(item);
     }
@@ -59,5 +60,19 @@ public class ItemServiceImpl implements ItemService {
             listDto.add(ItemMapper.toItemDto(item));
         }
         return listDto;
+    }
+
+    private void checkUpdate(Long itemId, Item item) {
+        Item findItem = ItemMapper.toItem(findById(itemId));
+        if (item.getName().isBlank()) {
+            item.setName(findItem.getName());
+        }
+        if (item.getDescription().isBlank()) {
+            item.setDescription(findItem.getDescription());
+        }
+        if (item.getAvailable() == null) {
+            item.setAvailable(true);
+        }
+        item.setId(itemId);
     }
 }
