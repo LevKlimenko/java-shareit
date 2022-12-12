@@ -6,6 +6,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.Create;
 import ru.practicum.shareit.user.dto.Update;
+import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 
@@ -17,29 +18,29 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> getAllUsers() {
-        List<User> users = userService.getAll();
+    public List<UserDto> getAllUsers() {
+        List<UserDto> users = userService.getAll();
         log.info("The list of all users has been received");
         return users;
     }
 
     @PostMapping
-    public User save(@Validated(Create.class) @RequestBody User user) {
-        User addedUser = userService.save(user);
+    public UserDto save(@Validated(Create.class) @RequestBody UserDto user) {
+        UserDto addedUser = userService.save(user);
         log.info("The user have been add, UserID={}", addedUser.getId());
         return addedUser;
     }
 
     @PatchMapping("/{userId}")
-    public User updateUser(@PathVariable("userId") Long id, @Validated(Update.class) @RequestBody User user) {
-        User upUser = userService.update(id, user);
+    public UserDto updateUser(@PathVariable("userId") Long id, @Validated(Update.class) @RequestBody UserDto user) {
+        UserDto upUser = userService.update(id, user);
         log.info("The user have been update, UserID={}", upUser.getId());
         return upUser;
     }
 
     @GetMapping("/{userId}")
-    public User getById(@PathVariable("userId") Long id) {
-        User user = userService.findById(id);
+    public UserDto getById(@PathVariable("userId") Long id) {
+        UserDto user = userService.findById(id);
         log.info("The user have been founded, UserID={}", user.getId());
         return userService.findById(id);
     }

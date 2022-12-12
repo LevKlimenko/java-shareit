@@ -55,7 +55,7 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> findByRequest(@RequestParam String text) {
-        if (text.isBlank()){
+        if (text.isBlank()) {
             log.info("No items for empty request");
             return List.of();
         }

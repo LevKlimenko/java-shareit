@@ -26,9 +26,9 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto update(Long itemId, Long userId, ItemDto itemDto) {
         userService.findById(userId);
-        checkUpdate(itemId,ItemMapper.toItem(findById(itemId)));
-        Item item = itemRepository.update(itemId, userId, ItemMapper.toItem(itemDto));
-        return ItemMapper.toItemDto(item);
+        ItemDto item = checkUpdate(itemId, itemDto);
+        Item upItem = itemRepository.update(itemId, userId, ItemMapper.toItem(item));
+        return ItemMapper.toItemDto(upItem);
     }
 
     @Override
@@ -62,17 +62,17 @@ public class ItemServiceImpl implements ItemService {
         return listDto;
     }
 
-    private void checkUpdate(Long itemId, Item item) {
-        Item findItem = ItemMapper.toItem(findById(itemId));
-        if (item.getName().isBlank()) {
+    private ItemDto checkUpdate(Long itemId, ItemDto item) {
+        ItemDto findItem = findById(itemId);
+        if (item.getName() == null || item.getName().isBlank()) {
             item.setName(findItem.getName());
         }
-        if (item.getDescription().isBlank()) {
+        if (item.getDescription() == null || item.getDescription().isBlank()) {
             item.setDescription(findItem.getDescription());
         }
         if (item.getAvailable() == null) {
             item.setAvailable(true);
         }
-        item.setId(itemId);
+        return item;
     }
 }

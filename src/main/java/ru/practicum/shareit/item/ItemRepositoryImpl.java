@@ -30,11 +30,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public Item save(Long userId, Item item) {
         checkUser(userId);
-        List<Item> itemsForUser = usersItem.get(userId);
-        if (itemsForUser == null) {
-            itemsForUser = new ArrayList<>();
-        }
-        checkBody(item);
+        final List<Item> itemsForUser = usersItem.computeIfAbsent(userId, k -> new ArrayList<>());
         item.setId(getNewId());
         item.setOwner(userId);
         items.put(item.getId(), item);
@@ -49,8 +45,8 @@ public class ItemRepositoryImpl implements ItemRepository {
         checkUser(userId);
         checkItemOwner(userId, itemId);
         usersItem.get(userId).remove(items.get(itemId));
-        //checkUpdate(itemId, item);
         item.setOwner(userId);
+        item.setId(itemId);
         items.put(itemId, item);
         usersItem.get(userId).add(item);
         return item;
@@ -80,22 +76,6 @@ public class ItemRepositoryImpl implements ItemRepository {
         return usersItem.get(userId);
     }
 
-    /*    @Override
-        public List<Item> findByString(String s) {
-            List<Item> itemsSearch = new ArrayList<>();
-            for (Long id : items.keySet()) {
-                if (items.get(id).getAvailable()) {
-                    if (items.get(id).getName().toLowerCase().contains(s.toLowerCase())) {
-                        itemsSearch.add(items.get(id));
-                        continue;
-                    }
-                    if (items.get(id).getDescription().toLowerCase().contains(s.toLowerCase())) {
-                        itemsSearch.add(items.get(id));
-                    }
-                }
-            }
-            return itemsSearch;
-        }*/
     @Override
     public List<Item> findByString(String s) {
         return items.values().stream()
@@ -121,31 +101,6 @@ public class ItemRepositoryImpl implements ItemRepository {
             throw new NotFoundException("You are not owner for this item");
         }
     }
-
-    private void checkBody(Item item) {
-        if (item.getName().isBlank()) {
-            throw new BadRequestException("Item's name can't be empty");
-        }
-        if (item.getDescription().isBlank()) {
-            throw new BadRequestException("Item's description can't be empty");
-        }
-        if (item.getAvailable() == null) {
-            throw new BadRequestException("Item's availability can't be empty");
-        }
-    }
-
-/*    private void checkUpdate(Long itemId, Item item) {
-        if (item.getName().isBlank()) {
-            item.setName(findById(itemId).getName());
-        }
-        if (item.getDescription().isBlank()) {
-            item.setDescription(findById(itemId).getDescription());
-        }
-        if (item.getAvailable() == null) {
-            item.setAvailable(true);
-        }
-        item.setId(itemId);
-    }*/
 
     private void isExist(Long id) {
         if (!items.containsKey(id)) {

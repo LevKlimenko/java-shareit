@@ -14,6 +14,7 @@ public class User {
     private Long id;
     @NotBlank(groups = {Create.class})
     private String name;
-    @Email(message = "Please enter correct E-mail",groups = {Create.class, Update.class})
+    @NotBlank(groups = {Create.class})
+    @Email(message = "Please enter correct E-mail", groups = {Create.class, Update.class})
     private String email;
 }

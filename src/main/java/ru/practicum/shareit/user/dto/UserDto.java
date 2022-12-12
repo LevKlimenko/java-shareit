@@ -12,6 +12,7 @@ public class UserDto {
     private Long id;
     @NotBlank(groups = {Create.class})
     private String name;
-    @Email(message = "Enter correct e-mail",groups = {Create.class , Update.class})
+    @NotBlank(groups = {Create.class})
+    @Email(message = "Enter correct e-mail", groups = {Create.class, Update.class})
     private String email;
 }

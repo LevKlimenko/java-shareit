@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 
@@ -20,8 +19,6 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
-        checkNameCreateNew(user);
-        checkEmailCreateNew(user);
         checkAlreadyExistEmail(user);
         user.setId(getNewId());
         users.put(id, user);
@@ -33,7 +30,7 @@ public class UserRepositoryImpl implements UserRepository {
     public User update(Long id, User user) {
         isExist(id);
         usersEmailInBase.remove(findById(id).getEmail());
-        checkUpdate(id, user);
+        checkAlreadyExistEmail(user);
         user.setId(id);
         users.put(id, user);
         usersEmailInBase.add(user.getEmail());
@@ -49,6 +46,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User findById(Long id) {
+        isExist(id);
         return users.get(id);
     }
 
@@ -67,27 +65,5 @@ public class UserRepositoryImpl implements UserRepository {
         if (!users.containsKey(id)) {
             throw new NotFoundException("User with ID=" + id + " not found");
         }
-    }
-
-    private void checkEmailCreateNew(User user) {
-        if (user.getEmail() == null) {
-            throw new BadRequestException("Can't create user without e-mail");
-        }
-    }
-
-    private void checkNameCreateNew(User user) {
-        if (user.getName() == null) {
-            throw new BadRequestException("Can't create user without name");
-        }
-    }
-
-    private void checkUpdate(Long id, User user) {
-        if (user.getName() == null) {
-            user.setName(findById(id).getName());
-        }
-        if (user.getEmail() == null) {
-            user.setEmail(findById(id).getEmail());
-        }
-        checkAlreadyExistEmail(user);
     }
 }
