@@ -1,14 +1,9 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserController;
-import ru.practicum.shareit.user.UserRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,32 +11,22 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ItemRepositoryImpl implements ItemRepository {
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
-    private final UserRepository userRepository;
     private final Map<Long, Item> items = new HashMap<>();
     private final Map<Long, List<Item>> usersItem = new HashMap<>();
     private long itemId;
 
     @Override
     public Collection<Item> findAll() {
-        return items.values();
+        return List.copyOf(items.values());
     }
 
     @Override
     public Item save(Long userId, Item item) {
-        checkUser(userId);
         final List<Item> itemsForUser = usersItem.computeIfAbsent(userId, k -> new ArrayList<>());
         item.setId(getNewId());
         item.setOwner(userId);
         items.put(item.getId(), item);
         itemsForUser.add(item);
-        return item;
-    }
-
-    @Override
-    public Item update(Long itemId, Long userId, Item item) {
-        usersItem.get(userId).remove(items.get(itemId));
-        usersItem.get(userId).add(item);
         return item;
     }
 
@@ -83,17 +68,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public void checkBeforeUpdate(Long itemId, Long userId) {
         isExist(itemId);
-        checkUser(userId);
         checkItemOwner(userId, itemId);
-    }
-
-    private void checkUser(Long id) {
-        if (id == null) {
-            throw new BadRequestException("User's id can't be NULL");
-        }
-        if (userRepository.findById(id) == null) {
-            throw new NotFoundException("User with ID=" + id + " not found");
-        }
     }
 
     private void checkItemOwner(Long userId, Long itemId) {

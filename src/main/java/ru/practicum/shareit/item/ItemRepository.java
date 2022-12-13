@@ -10,8 +10,6 @@ public interface ItemRepository {
 
     Item save(Long userId, Item item);
 
-    Item update(Long itemId, Long userId, Item item);
-
     void checkBeforeUpdate(Long itemId, Long userId);
 
     boolean deleteById(Long itemId, Long userId);

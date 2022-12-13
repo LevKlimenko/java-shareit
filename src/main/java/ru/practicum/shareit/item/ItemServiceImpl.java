@@ -28,8 +28,7 @@ public class ItemServiceImpl implements ItemService {
         userService.findById(userId);
         itemRepository.checkBeforeUpdate(itemId, userId);
         Item item = checkUpdate(itemId, ItemMapper.toItem(itemDto));
-        Item upItem = itemRepository.update(itemId, userId, item);
-        return ItemMapper.toItemDto(upItem);
+        return ItemMapper.toItemDto(item);
     }
 
     @Override

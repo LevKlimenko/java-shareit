@@ -6,6 +6,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,7 +48,8 @@ public class UserServiceImpl implements UserService {
         if (user.getName() != null && !user.getName().isBlank()) {
             findUser.setName(user.getName());
         }
-        if (user.getEmail() != null && !user.getEmail().isBlank()) {
+        if (user.getEmail() != null && !user.getEmail().isBlank() &&
+                !Objects.equals(user.getEmail(), findUser.getEmail())) {
             repository.checkAlreadyExistEmail(UserMapper.toUser(user));
             repository.removeOldEmail(findUser.getEmail());
             findUser.setEmail(user.getEmail());
