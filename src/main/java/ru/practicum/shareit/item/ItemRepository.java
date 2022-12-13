@@ -12,6 +12,8 @@ public interface ItemRepository {
 
     Item update(Long itemId, Long userId, Item item);
 
+    void checkBeforeUpdate(Long itemId, Long userId);
+
     boolean deleteById(Long itemId, Long userId);
 
     Item findById(Long itemId);

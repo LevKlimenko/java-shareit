@@ -40,12 +40,8 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public Item update(Long itemId, Long userId, Item item) {
-        isExist(itemId);
-        checkUser(userId);
-        checkItemOwner(userId, itemId);
         usersItem.get(userId).remove(items.get(itemId));
         item.setOwner(userId);
-        item.setId(itemId);
         items.put(itemId, item);
         usersItem.get(userId).add(item);
         return item;
@@ -84,6 +80,13 @@ public class ItemRepositoryImpl implements ItemRepository {
                 )
                 .distinct()
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    @Override
+    public void checkBeforeUpdate(Long itemId, Long userId) {
+        isExist(itemId);
+        checkUser(userId);
+        checkItemOwner(userId, itemId);
     }
 
     private void checkUser(Long id) {
