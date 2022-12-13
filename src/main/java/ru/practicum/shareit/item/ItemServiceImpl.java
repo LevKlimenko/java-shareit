@@ -27,8 +27,8 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto update(Long itemId, Long userId, ItemDto itemDto) {
         userService.findById(userId);
         itemRepository.checkBeforeUpdate(itemId, userId);
-        ItemDto item = checkUpdate(itemId, itemDto);
-        Item upItem = itemRepository.update(itemId, userId, ItemMapper.toItem(item));
+        Item item = checkUpdate(itemId, ItemMapper.toItem(itemDto));
+        Item upItem = itemRepository.update(itemId, userId, item);
         return ItemMapper.toItemDto(upItem);
     }
 
@@ -53,7 +53,7 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.findByUserId(id).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
     }
 
-    private ItemDto checkUpdate(Long itemId, ItemDto item) {
+    private Item checkUpdate(Long itemId, Item item) {
         Item findItem = itemRepository.findById(itemId);
         if (item.getName() != null && !item.getName().isBlank()) {
             findItem.setName(item.getName());
@@ -64,6 +64,6 @@ public class ItemServiceImpl implements ItemService {
         if (item.getAvailable() != null) {
             findItem.setAvailable(item.getAvailable());
         }
-        return ItemMapper.toItemDto(findItem);
+        return findItem;
     }
 }
