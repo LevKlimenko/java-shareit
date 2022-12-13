@@ -12,4 +12,8 @@ public interface UserRepository {
     boolean deleteById(Long id);
 
     User findById(Long id);
+
+    void checkAlreadyExistEmail(User user);
+
+    void removeOldEmail(String oldEmail);
 }

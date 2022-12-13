@@ -35,7 +35,6 @@ public class ItemRepositoryImpl implements ItemRepository {
         item.setOwner(userId);
         items.put(item.getId(), item);
         itemsForUser.add(item);
-        usersItem.put(userId, itemsForUser);
         return item;
     }
 

@@ -7,8 +7,8 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,26 +44,16 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> findByString(String s) {
-        List<ItemDto> listDto = new ArrayList<>();
-        for (Item item :
-                itemRepository.findByString(s)) {
-            listDto.add(ItemMapper.toItemDto(item));
-        }
-        return listDto;
+        return itemRepository.findByString(s).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
     }
 
     @Override
     public List<ItemDto> findByUserId(Long id) {
-        List<ItemDto> listDto = new ArrayList<>();
-        for (Item item :
-                itemRepository.findByUserId(id)) {
-            listDto.add(ItemMapper.toItemDto(item));
-        }
-        return listDto;
+        return itemRepository.findByUserId(id).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
     }
 
     private ItemDto checkUpdate(Long itemId, ItemDto item) {
-        ItemDto findItem = findById(itemId);
+        Item findItem = itemRepository.findById(itemId);
         if (item.getName() == null || item.getName().isBlank()) {
             item.setName(findItem.getName());
         }

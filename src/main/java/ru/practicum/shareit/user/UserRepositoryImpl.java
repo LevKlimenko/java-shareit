@@ -19,9 +19,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
-        checkAlreadyExistEmail(user);
         user.setId(getNewId());
-        users.put(id, user);
+        users.put(user.getId(), user);
         usersEmailInBase.add(user.getEmail());
         return user;
     }
@@ -29,17 +28,14 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User update(Long id, User user) {
         isExist(id);
-        usersEmailInBase.remove(findById(id).getEmail());
-        checkAlreadyExistEmail(user);
         user.setId(id);
-        users.put(id, user);
         usersEmailInBase.add(user.getEmail());
         return user;
     }
 
     @Override
     public boolean deleteById(Long id) {
-        usersEmailInBase.remove(users.get(id).getEmail());
+        usersEmailInBase.remove(findById(id).getEmail());
         users.remove(id);
         return true;
     }
@@ -50,15 +46,21 @@ public class UserRepositoryImpl implements UserRepository {
         return users.get(id);
     }
 
-    private long getNewId() {
-        return ++id;
-    }
-
-    private void checkAlreadyExistEmail(User user) {
+    @Override
+    public void checkAlreadyExistEmail(User user) {
         if (usersEmailInBase.contains(user.getEmail())) {
             throw new ConflictException("User with e-mail " + user.getEmail() +
                     " already exist");
         }
+    }
+
+    @Override
+    public void removeOldEmail(String oldEmail) {
+        usersEmailInBase.remove(oldEmail);
+    }
+
+    private long getNewId() {
+        return ++id;
     }
 
     private void isExist(Long id) {

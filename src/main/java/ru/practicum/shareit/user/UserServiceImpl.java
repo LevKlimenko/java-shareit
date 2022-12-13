@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -15,15 +15,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAll() {
-        List<UserDto> listDto = new ArrayList<>();
-        for (User user : repository.findAll()) {
-            listDto.add(UserMapper.toUserDto(user));
-        }
-        return listDto;
+        return repository.findAll().stream().map(UserMapper::toUserDto).collect(Collectors.toList());
     }
 
     @Override
     public UserDto save(UserDto userDto) {
+        repository.checkAlreadyExistEmail(UserMapper.toUser(userDto));
         User user = repository.save(UserMapper.toUser(userDto));
         return UserMapper.toUserDto(user);
     }
@@ -46,13 +43,15 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserDto checkUpdate(Long id, UserDto user) {
-        UserDto findUser = findById(id);
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(findUser.getName());
+        User findUser = repository.findById(id);
+        if (user.getName() != null && !user.getName().isBlank()) {
+            findUser.setName(user.getName());
         }
-        if (user.getEmail() == null) {
-            user.setEmail(findUser.getEmail());
+        if (user.getEmail() != null && !user.getEmail().isBlank()) {
+            repository.checkAlreadyExistEmail(UserMapper.toUser(user));
+            repository.removeOldEmail(findUser.getEmail());
+            findUser.setEmail(user.getEmail());
         }
-        return user;
+        return UserMapper.toUserDto(findUser);
     }
 }

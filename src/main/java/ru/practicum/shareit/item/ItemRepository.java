@@ -19,4 +19,5 @@ public interface ItemRepository {
     List<Item> findByUserId(Long userId);
 
     List<Item> findByString(String s);
+
 }
