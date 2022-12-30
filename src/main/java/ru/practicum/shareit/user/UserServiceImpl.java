@@ -35,7 +35,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean deleteById(Long id) {
-        return repository.deleteById(id);
+        repository.deleteById(id);
+        return true;
     }
 
     @Override
@@ -44,7 +45,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserDto checkUpdate(Long id, UserDto user) {
-        User findUser = repository.findById(id);
+        User findUser = repository.getById(id); //repository.findById(id);
         if (user.getName() != null && !user.getName().isBlank()) {
             findUser.setName(user.getName());
         }

@@ -7,23 +7,23 @@ import ru.practicum.shareit.exceptions.NotFoundException;
 import java.util.*;
 
 @Component
-public class UserRepositoryImpl implements UserRepository {
+public abstract class UserRepositoryImpl implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
     private final Set<String> usersEmailInBase = new HashSet<>();
     private long id;
 
-    @Override
-    public List<User> findAll() {
-        return new ArrayList<>(users.values());
-    }
+  //  @Override
+  //  public List<User> findAll() {
+   //     return new ArrayList<>(users.values());
+ //   }
 
-    @Override
-    public User save(User user) {
-        user.setId(getNewId());
-        users.put(user.getId(), user);
-        usersEmailInBase.add(user.getEmail());
-        return user;
-    }
+   // @Override
+   // public User save(User user) {
+    //    user.setId(getNewId());
+    //    users.put(user.getId(), user);
+    //    usersEmailInBase.add(user.getEmail());
+    //    return user;
+ //   }
 
     @Override
     public User update(Long id, User user) {
@@ -33,18 +33,18 @@ public class UserRepositoryImpl implements UserRepository {
         return user;
     }
 
-    @Override
-    public boolean deleteById(Long id) {
-        usersEmailInBase.remove(findById(id).getEmail());
-        users.remove(id);
-        return true;
-    }
+ //   @Override
+  //  public boolean deleteById(Long id) {
+  //      usersEmailInBase.remove(findById(id).getEmail());
+   //     users.remove(id);
+   //     return true;
+  //  }
 
-    @Override
-    public User findById(Long id) {
-        isExist(id);
-        return users.get(id);
-    }
+ //   @Override
+ //   public User findById(Long id) {
+  //      isExist(id);
+ //       return users.get(id);
+ //   }
 
     @Override
     public void checkAlreadyExistEmail(User user) {
