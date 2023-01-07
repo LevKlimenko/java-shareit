@@ -2,30 +2,21 @@ package ru.practicum.shareit.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import ru.practicum.shareit.user.dto.Create;
-import ru.practicum.shareit.user.dto.Update;
+import lombok.RequiredArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Table;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
+import javax.persistence.*;
 
 @Entity
-@Table (name = "users", schema = "public")
+@Table(name = "users")
 @Data
 @AllArgsConstructor
+@RequiredArgsConstructor
 public class User {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "name")
-    @NotBlank(groups = {Create.class})
+    @Column
     private String name;
-    @Column(name = "email")
-    @NotBlank(groups = {Create.class})
-    @Email(message = "Please enter correct E-mail", groups = {Create.class, Update.class})
+    @Column
     private String email;
 }

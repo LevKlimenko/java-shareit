@@ -21,7 +21,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto save(UserDto userDto) {
-        repository.checkAlreadyExistEmail(UserMapper.toUser(userDto));
         User user = repository.save(UserMapper.toUser(userDto));
         return UserMapper.toUserDto(user);
     }
@@ -29,7 +28,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto update(Long id, UserDto userDto) {
         UserDto user = checkUpdate(id, userDto);
-        User upUser = repository.update(id, UserMapper.toUser(user));
+        User upUser = repository.save(UserMapper.toUser(user));
         return UserMapper.toUserDto(upUser);
     }
 
@@ -41,18 +40,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto findById(Long id) {
-        return UserMapper.toUserDto(repository.findById(id));
+        return UserMapper.toUserDto(repository.get(id));
     }
 
     private UserDto checkUpdate(Long id, UserDto user) {
-        User findUser = repository.getById(id); //repository.findById(id);
+        User findUser = repository.get(id);
         if (user.getName() != null && !user.getName().isBlank()) {
             findUser.setName(user.getName());
         }
         if (user.getEmail() != null && !user.getEmail().isBlank() &&
                 !Objects.equals(user.getEmail(), findUser.getEmail())) {
-            repository.checkAlreadyExistEmail(UserMapper.toUser(user));
-            repository.removeOldEmail(findUser.getEmail());
             findUser.setEmail(user.getEmail());
         }
         return UserMapper.toUserDto(findUser);

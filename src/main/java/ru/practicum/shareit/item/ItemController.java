@@ -40,10 +40,10 @@ public class ItemController {
     }
 
     @DeleteMapping("/{itemId}")
-    public boolean delete(@PathVariable("itemId") Long itemId, @RequestHeader("X-Sharer-User-Id") Long userId) {
-        boolean del = itemService.deleteById(itemId, userId);
+    public void delete(@PathVariable("itemId") Long itemId, @RequestHeader("X-Sharer-User-Id") Long userId) {
+        itemService.deleteById(itemId, userId);
         log.info("The user's item have been deleted for UserID={}, ItemID={}", userId, itemId);
-        return del;
+
     }
 
     @GetMapping("/{itemId}")

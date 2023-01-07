@@ -9,7 +9,7 @@ public interface ItemService {
 
     ItemDto update(Long itemId, Long userId, ItemDto item);
 
-    boolean deleteById(Long itemId, Long userId);
+    void deleteById(Long itemId, Long userId);
 
     ItemDto findById(Long itemId);
 

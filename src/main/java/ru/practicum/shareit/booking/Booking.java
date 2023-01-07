@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.Data;
-import ru.practicum.shareit.constant.Status;
+import ru.practicum.shareit.booking.enumBooking.Status;
 
 import java.time.LocalDateTime;
 
