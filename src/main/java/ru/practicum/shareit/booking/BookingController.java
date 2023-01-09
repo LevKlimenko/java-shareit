@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingInDto;
 import ru.practicum.shareit.booking.dto.BookingOutDto;
+import ru.practicum.shareit.booking.enumBooking.Status;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class BookingController {
 
     @GetMapping()
     public List<BookingOutDto> findAll ( @RequestHeader ("X-Sharer-User-Id") Long userId,
-                                         @RequestParam(required = false,defaultValue = "ALL") String state){
+                                         @RequestParam(required = false,defaultValue = "ALL") Status state){
         return service.findAll(userId, state);
     }
 
