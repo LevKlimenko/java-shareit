@@ -18,6 +18,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             " AND i.available=true")
     List<Item> findByString(String text);
 
-    @Query("SELECT i FROM Item i where i.owner = ?1")
+    @Query("SELECT i FROM Item i where i.owner.id = ?1")
     List<Item> findAllByOwnerIdOrderById(Long id);
 }

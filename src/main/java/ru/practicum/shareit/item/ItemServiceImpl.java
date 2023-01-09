@@ -6,7 +6,8 @@ import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.ForbiddenException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserRepository;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,26 +17,26 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     @Override
     public ItemDto save(Long userId, ItemDto itemDto) {
-        userService.findById(userId);
+        User user = userRepository.get(userId);
         if (Objects.isNull(itemDto.getAvailable())) {
             throw new ConflictException("Available can't be NULL");
         }
 
         Item item = ItemMapper.toItem(itemDto);
-        item.setOwner(userId);
+        item.setOwner(user);
         itemRepository.save(item);
         return ItemMapper.toItemDto(item);
     }
 
     @Override
     public ItemDto update(Long itemId, Long userId, ItemDto itemDto) {
-        userService.findById(userId);
+        userRepository.get(userId);
         Item item = itemRepository.get(itemId);
-        if (!userId.equals(item.getOwner())) {
+        if (!userId.equals(item.getOwner().getId())) {
             throw new ForbiddenException("User with ID=" + userId + " not owner for item with ID=" + itemId);
         }
         item = checkUpdate(itemId, ItemMapper.toItem(itemDto));
