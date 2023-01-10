@@ -4,7 +4,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.exceptions.NotFoundException;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
     default Item get(Long id) {
@@ -18,8 +20,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             " AND i.available=true")
     List<Item> findByString(String text);
 
-    List<Item> findFirstByOwnerId(Long ownerId);
+    Optional<Item> findFirstByOwnerId(Long ownerId);
 
-    @Query("SELECT i FROM Item i where i.owner.id = ?1")
-    List<Item> findAllByOwnerIdOrderById(Long id);
+    @Query("SELECT i FROM Item i where i.owner.id = ?1 order by i.id")
+    Collection<Item> findAllByOwnerId(Long id);
 }

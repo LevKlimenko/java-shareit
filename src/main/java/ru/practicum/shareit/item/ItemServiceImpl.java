@@ -4,10 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.ForbiddenException;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentRepository;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
+import ru.practicum.shareit.item.comment.dto.CommentIncomingDto;
+import ru.practicum.shareit.item.comment.dto.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.user.User;
@@ -57,9 +62,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto findById(Long itemId) {
+    public ItemDto findById(Long userId, Long itemId) {
         Item item = itemRepository.get(itemId);
-        return ItemMapper.toItemDto(item);
+        if (item.getOwner().getId().equals(userId)) {
+            return ItemMapper.toItemDto(
+                    item,
+                    BookingMapper.toBookingShortDto(findLastBooking(item.getId())),
+                    BookingMapper.toBookingShortDto(findNextBooking(item.getId())),
+                    findComment(itemId));
+        }
+        return ItemMapper.toItemDto(item, findComment(itemId));
     }
 
     @Override
@@ -69,7 +81,28 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> findByUserId(Long id) {
-        return itemRepository.findAllByOwnerIdOrderById(id).stream().map(ItemMapper::toItemDto).collect(Collectors.toList());
+        userRepository.get(id);
+        return itemRepository.findAllByOwnerId(id)
+                .stream()
+                .map(item -> ItemMapper.toItemDto(
+                        item,
+                        BookingMapper.toBookingShortDto(findLastBooking(item.getId())),
+                        BookingMapper.toBookingShortDto(findNextBooking(item.getId())),
+                        findComment(item.getId()))
+                )
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CommentDto createComment(Long userId, Long itemId, CommentIncomingDto commentIncomingDto) {
+        User author = userRepository.get(userId);
+        Item item = itemRepository.get(itemId);
+        if (!isAuthorUsedItem(userId, itemId)) {
+            throw new BadRequestException("Comments from users who have not rented a thing are prohibited");
+        }
+        Comment newComment = CommentMapper.toComment(commentIncomingDto, author, item);
+        commentRepository.save(newComment);
+        return CommentMapper.toCommentDto(newComment);
     }
 
     private Item checkUpdate(Long itemId, Item item) {
@@ -86,21 +119,20 @@ public class ItemServiceImpl implements ItemService {
         return findItem;
     }
 
-    private Booking findLastBooking(Long itemId){
-        return bookingRepository.findLastBookingByItemId(itemId,LocalDateTime.now());
+    private Booking findLastBooking(Long itemId) {
+        return bookingRepository.findLastBookingByItemId(itemId, LocalDateTime.now());
     }
 
-    private Booking findNextBooking(Long itemId){
+    private Booking findNextBooking(Long itemId) {
         return bookingRepository.findNextBookingByItemId(itemId, LocalDateTime.now());
     }
 
-    private boolean isAuthorUsedItem(Long userId, Long itemId){
-        int count = bookingRepository.countCompletedBooking(userId,itemId, LocalDateTime.now());
-        return count>0;
+    private boolean isAuthorUsedItem(Long userId, Long itemId) {
+        int count = bookingRepository.countCompletedBooking(userId, itemId, LocalDateTime.now());
+        return count > 0;
     }
 
-    private List<Comment> findComment(long itemId){
-        return commentRepository.findAllByItemOrderByCreatedDesc(itemId);
+    private List<Comment> findComment(long itemId) {
+        return commentRepository.findAllByItem_IdOrderByCreatedDesc(itemId);
     }
-
 }

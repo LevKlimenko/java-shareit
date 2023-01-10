@@ -1,13 +1,13 @@
 package ru.practicum.shareit.item.comment.dto;
 
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 
-@Component
+@UtilityClass
 public class CommentMapper {
     public static CommentDto toCommentDto(Comment comment){
         return CommentDto.builder()

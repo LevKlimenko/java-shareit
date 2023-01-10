@@ -36,7 +36,7 @@ public class BookingServiceImpl implements BookingService {
         User booker = userRepository.get(userId);
         Item item = itemRepository.get(dto.getItemId());
         if (userId.equals(item.getOwner().getId())) {
-            throw new BadRequestException("The owner of the Item cannot booking his Item");
+            throw new NotFoundException("The owner of the Item cannot booking his Item");
         }
         if (!item.getAvailable()) {
             throw new BadRequestException("Item ID=" + item.getId() + "not available now for booking");
@@ -97,7 +97,7 @@ public class BookingServiceImpl implements BookingService {
                result=bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId,now);
                break;
            case FUTURE:
-               result=bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId,now);
+               result=bookingRepository.findAllFutureForBooker(userId,now);
                break;
            default:
                throw new InvalidStateException("Unknown state: " + state);
@@ -134,7 +134,7 @@ public class BookingServiceImpl implements BookingService {
                 result=bookingRepository.findAllByOwnerAndEndBeforeOrderByStartDesc(userId,now);
                 break;
             case FUTURE:
-                result=bookingRepository.findAllByOwnerAndStartAfterOrderByStartDesc(userId,now);
+                result=bookingRepository.findAllFutureForOwner(userId,now);
                 break;
             default:
                 throw new InvalidStateException("Unknown state: " + state);
@@ -145,5 +145,4 @@ public class BookingServiceImpl implements BookingService {
                 .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
-
 }

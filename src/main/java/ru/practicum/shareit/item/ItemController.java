@@ -4,9 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.comment.dto.CommentDto;
+import ru.practicum.shareit.item.comment.dto.CommentIncomingDto;
 import ru.practicum.shareit.item.dto.Create;
 import ru.practicum.shareit.item.dto.ItemDto;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -47,8 +50,8 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto findById(@PathVariable("itemId") Long itemId) {
-        ItemDto item = itemService.findById(itemId);
+    public ItemDto findById(@RequestHeader("X-Sharer-User-Id") Long userId,@PathVariable("itemId") Long itemId) {
+        ItemDto item = itemService.findById(userId,itemId);
         log.info("The item was found, ItemID={}", item.getId());
         return item;
     }
@@ -62,5 +65,13 @@ public class ItemController {
         List<ItemDto> items = itemService.findByString(text);
         log.info("Items were found on request '{}'", text);
         return items;
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable("itemId") Long itemId,
+                                    @Valid @RequestBody CommentIncomingDto commentIncomingDto){
+        CommentDto commentDto = itemService.createComment(userId,itemId,commentIncomingDto);
+        log.info("Comment from user id={} for item id={} have been add",userId,itemId);
+        return commentDto;
     }
 }
