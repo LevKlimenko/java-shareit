@@ -8,7 +8,6 @@ import ru.practicum.shareit.exceptions.NotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     default Booking get(Long id){
@@ -37,6 +36,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "where i.owner=?1 " +
             "order by b.start desc ")
     List<Booking> findAllByOwnerOrderByStartDesc(Long userId);
+
+    @Query("select b from Booking b where b.item.owner.id=?1 and b.start<=?2 and b.end>=?2 order by b.start")
+    List<Booking> findAllByOwnerCurrent(Long ownerId, LocalDateTime now);
 
     @Query("select b " +
             "from Booking b " +
@@ -72,23 +74,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "order by b.start desc")
     List<Booking> findAllByOwnerAndStatusOrderByStartDesc(Long userId, Status status);
 
-    @Query(value = "select * " +
-            "from bookings b " +
-            "left join items i on  b.item_id = i.id " +
-            "where i.id = ?1 " +
-            "and b.end_date<?2 " +
-            "order by b.end_date desc " +
-            "limit 1",
-            nativeQuery = true)
-    Optional<Booking> findLastBookingByItemId(Long itemId, LocalDateTime dateTime);
+    @Query("select b from Booking b where b.item.id = ?1 and b.end<?2 order by b.start desc")
+    Booking findLastBookingByItemId(Long itemId, LocalDateTime now);
 
-    @Query(value = "select * " +
-            "from bookings b " +
-            "left join items i on  b.item_id = i.id " +
-            "where i.id = ?1 " +
-            "and b.start_date>?2 " +
-            "order by b.start_date desc " +
-            "limit 1",
-            nativeQuery = true)
-    Optional<Booking> findNextBookingByItemId(Long itemId, LocalDateTime dateTime);
+    @Query("select b from Booking b where b.item.id=?1 and b.start>?2 order by b.start desc")
+    Booking findNextBookingByItemId(Long itemId, LocalDateTime now);
+
+    @Query("select count (b) from Booking b where b.booker.id=?1 and b.item.id=?2 and b.end<?3 " +
+            "and b.status= ru.practicum.shareit.booking.enumBooking.Status.APPROVED")
+    Integer countCompletedBooking(Long bookerId, Long itemId, LocalDateTime now);
 }

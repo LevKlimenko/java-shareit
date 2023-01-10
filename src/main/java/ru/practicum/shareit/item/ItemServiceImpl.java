@@ -2,13 +2,18 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.ForbiddenException;
+import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.item.comment.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -18,6 +23,8 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public ItemDto save(Long userId, ItemDto itemDto) {
@@ -78,4 +85,22 @@ public class ItemServiceImpl implements ItemService {
         }
         return findItem;
     }
+
+    private Booking findLastBooking(Long itemId){
+        return bookingRepository.findLastBookingByItemId(itemId,LocalDateTime.now());
+    }
+
+    private Booking findNextBooking(Long itemId){
+        return bookingRepository.findNextBookingByItemId(itemId, LocalDateTime.now());
+    }
+
+    private boolean isAuthorUsedItem(Long userId, Long itemId){
+        int count = bookingRepository.countCompletedBooking(userId,itemId, LocalDateTime.now());
+        return count>0;
+    }
+
+    private List<Comment> findComment(long itemId){
+        return commentRepository.findAllByItemOrderByCreatedDesc(itemId);
+    }
+
 }

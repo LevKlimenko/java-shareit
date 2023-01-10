@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.booking.enumBooking.Status;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
@@ -31,5 +32,5 @@ public class Booking {
     @JoinColumn(name = "booker_id")
     private User booker;
     @Enumerated(EnumType.STRING)
-    private BookingStatus status;
+    private Status status;
 }

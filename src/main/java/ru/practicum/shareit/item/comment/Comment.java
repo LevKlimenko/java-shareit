@@ -1,8 +1,9 @@
 package ru.practicum.shareit.item.comment;
 
-import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Data;
-import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -10,17 +11,19 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "comments")
 @Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     @Column
     String text;
+    @ManyToOne
     @Column(name = "item_id")
-    Long itemId;
+    Item item;
+    @ManyToOne
     @Column(name = "author_id")
-    Long authorId;
+    User author;
     @Column
     LocalDateTime created;
 }

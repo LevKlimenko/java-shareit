@@ -9,6 +9,7 @@ import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.enumBooking.State;
 import ru.practicum.shareit.booking.enumBooking.Status;
 import ru.practicum.shareit.exceptions.BadRequestException;
+import ru.practicum.shareit.exceptions.InvalidStateException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
@@ -52,13 +53,13 @@ public class BookingServiceImpl implements BookingService {
         if (!booking.getItem().getOwner().getId().equals(userId)) {
             throw new NotFoundException("Item ID=" + booking.getItem().getId() + "doesn't belong to the user ID=" + userId);
         }
-        if (booking.getStatus() == BookingStatus.APPROVED) {
+        if (booking.getStatus() == Status.APPROVED) {
             throw new BadRequestException("Booking id=" + bookingId + " is already approved");
         }
         if (approved) {
-            booking.setStatus(BookingStatus.APPROVED);
+            booking.setStatus(Status.APPROVED);
         } else {
-            booking.setStatus(BookingStatus.REJECTED);
+            booking.setStatus(Status.REJECTED);
         }
         Booking updateBooking = bookingRepository.save(booking);
         return BookingMapper.toBookingDto(updateBooking);
@@ -99,7 +100,7 @@ public class BookingServiceImpl implements BookingService {
                result=bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId,now);
                break;
            default:
-               throw new BadRequestException("Unknown state: " + state);
+               throw new InvalidStateException("Unknown state: " + state);
        }
        return Optional.ofNullable(result)
                .orElseGet(Collections::emptyList)
@@ -110,8 +111,39 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> findAllForOwner(Long userId, State state) {
-        return null;
+        userRepository.get(userId);
+        if (itemRepository.findFirstByOwnerId(userId).isEmpty()){
+            return Collections.emptyList();
+        }
+        LocalDateTime now = LocalDateTime.now();
+        Collection<Booking> result;
+        switch(state){
+            case ALL:
+                result = bookingRepository.findAllByOwnerOrderByStartDesc(userId);
+                break;
+            case WAITING:
+                result = bookingRepository.findAllByOwnerAndStatusOrderByStartDesc(userId, Status.WAITING);
+                break;
+            case REJECTED:
+                result=bookingRepository.findAllByOwnerAndStatusOrderByStartDesc(userId,Status.REJECTED);
+                break;
+            case CURRENT:
+                result=bookingRepository.findAllByOwnerCurrent(userId,now);
+                break;
+            case PAST:
+                result=bookingRepository.findAllByOwnerAndEndBeforeOrderByStartDesc(userId,now);
+                break;
+            case FUTURE:
+                result=bookingRepository.findAllByOwnerAndStartAfterOrderByStartDesc(userId,now);
+                break;
+            default:
+                throw new InvalidStateException("Unknown state: " + state);
+        }
+        return Optional.ofNullable(result)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(BookingMapper::toBookingDto)
+                .collect(Collectors.toList());
     }
-
 
 }
