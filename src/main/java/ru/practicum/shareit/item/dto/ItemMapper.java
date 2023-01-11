@@ -21,29 +21,29 @@ public class ItemMapper {
                 .build();
     }
 
-    public static ItemDto toItemDto(Item item, List <Comment> comments){
+    public static ItemDto toItemDto(Item item, List<Comment> comments) {
         ItemDto itemDto = toItemDto(item);
         itemDto.setComments(comments
-        .stream()
-        .map(CommentMapper::toCommentDto)
-        .collect(Collectors.toList()));
+                .stream()
+                .map(CommentMapper::toCommentDto)
+                .collect(Collectors.toList()));
         return itemDto;
     }
 
     public static ItemDto toItemDto(Item item, BookingShortDto lastBooking, BookingShortDto nextBooking,
-                                    List<Comment> comments){
-        ItemDto itemDto = toItemDto(item,comments);
-            if (lastBooking!=null){
-                itemDto.setLastBooking(lastBooking);
-            }
-            if (nextBooking!=null){
-                itemDto.setNextBooking(nextBooking);
-            }
+                                    List<Comment> comments) {
+        ItemDto itemDto = toItemDto(item, comments);
+        if (lastBooking != null) {
+            itemDto.setLastBooking(lastBooking);
+        }
+        if (nextBooking != null) {
+            itemDto.setNextBooking(nextBooking);
+        }
 
         return itemDto;
     }
 
-    public static Item toItem(ItemDto itemDto) {
+    public static Item toItem(ItemInDto itemDto) {
         return new Item(
                 itemDto.getName(),
                 itemDto.getDescription(),

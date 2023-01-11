@@ -21,7 +21,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleInvalidStateException(final InvalidStateException e){
+    public ErrorResponse handleInvalidStateException(final InvalidStateException e) {
         log.error(e.getMessage());
         return new ErrorResponse("Unknown state: UNSUPPORTED_STATUS");
     }

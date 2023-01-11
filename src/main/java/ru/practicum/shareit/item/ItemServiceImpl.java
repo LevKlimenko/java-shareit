@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingMapper;
@@ -14,6 +15,7 @@ import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.dto.CommentIncomingDto;
 import ru.practicum.shareit.item.comment.dto.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemInDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -32,7 +35,8 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
-    public ItemDto save(Long userId, ItemDto itemDto) {
+    @Transactional
+    public ItemDto save(Long userId, ItemInDto itemDto) {
         User user = userRepository.get(userId);
         if (Objects.isNull(itemDto.getAvailable())) {
             throw new ConflictException("Available can't be NULL");
@@ -45,18 +49,19 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto update(Long itemId, Long userId, ItemDto itemDto) {
+    @Transactional
+    public ItemDto update(Long itemId, Long userId, ItemInDto itemDto) {
         userRepository.get(userId);
         Item item = itemRepository.get(itemId);
         if (!userId.equals(item.getOwner().getId())) {
             throw new ForbiddenException("User with ID=" + userId + " not owner for item with ID=" + itemId);
         }
         item = checkUpdate(itemId, ItemMapper.toItem(itemDto));
-        itemRepository.save(item);
         return ItemMapper.toItemDto(item);
     }
 
     @Override
+    @Transactional
     public void deleteById(Long itemId, Long userId) {
         itemRepository.deleteById(itemId);
     }
@@ -94,6 +99,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentDto createComment(Long userId, Long itemId, CommentIncomingDto commentIncomingDto) {
         User author = userRepository.get(userId);
         Item item = itemRepository.get(itemId);
@@ -120,11 +126,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private Booking findLastBooking(Long itemId) {
-        return bookingRepository.findLastBookingByItemId(itemId, LocalDateTime.now());
+        return bookingRepository.findLastBookingByItemId(itemId, LocalDateTime.now(), BookingRepository.SORT_BY_DESC);
     }
 
     private Booking findNextBooking(Long itemId) {
-        return bookingRepository.findNextBookingByItemId(itemId, LocalDateTime.now());
+        return bookingRepository.findNextBookingByItemId(itemId, LocalDateTime.now(), BookingRepository.SORT_BY_DESC);
     }
 
     private boolean isAuthorUsedItem(Long userId, Long itemId) {

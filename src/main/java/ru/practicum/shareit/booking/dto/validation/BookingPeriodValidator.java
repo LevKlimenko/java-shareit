@@ -8,9 +8,12 @@ import java.time.LocalDateTime;
 
 public class BookingPeriodValidator implements ConstraintValidator<BookingPeriodValidation, BookingIncomingDto> {
     @Override
-    public boolean isValid(BookingIncomingDto bookingDto, ConstraintValidatorContext context){
+    public boolean isValid(BookingIncomingDto bookingDto, ConstraintValidatorContext context) {
         LocalDateTime start = bookingDto.getStart();
         LocalDateTime end = bookingDto.getEnd();
+        if (start == null || end == null) {
+            return false;
+        }
         return end.isAfter(start);
     }
 }

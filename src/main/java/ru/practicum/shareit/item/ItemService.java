@@ -3,17 +3,18 @@ package ru.practicum.shareit.item;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.dto.CommentIncomingDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemInDto;
 
 import java.util.List;
 
 public interface ItemService {
-    ItemDto save(Long id, ItemDto item);
+    ItemDto save(Long id, ItemInDto item);
 
-    ItemDto update(Long itemId, Long userId, ItemDto item);
+    ItemDto update(Long itemId, Long userId, ItemInDto item);
 
     void deleteById(Long itemId, Long userId);
 
-    ItemDto findById(Long userId,Long itemId);
+    ItemDto findById(Long userId, Long itemId);
 
     List<ItemDto> findByUserId(Long userId);
 

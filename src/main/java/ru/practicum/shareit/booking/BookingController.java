@@ -17,37 +17,37 @@ public class BookingController {
     private final BookingService service;
 
     @PostMapping()
-    public BookingDto save(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody BookingIncomingDto bookingInDto){
+    public BookingDto save(@RequestHeader("X-Sharer-User-Id") Long userId, @Valid @RequestBody BookingIncomingDto bookingInDto) {
         return service.save(userId, bookingInDto);
     }
 
     @PatchMapping("/{bookingId}")
     public BookingDto approve(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long bookingId,
-                                 @RequestParam("approved") Boolean approved){
+                              @RequestParam("approved") Boolean approved) {
         return service.approve(userId, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDto findById(@RequestHeader ("X-Sharer-User-Id") Long userId, @PathVariable Long bookingId){
+    public BookingDto findById(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long bookingId) {
         return service.findById(userId, bookingId);
     }
 
     @GetMapping()
-    public List<BookingDto> findAll ( @RequestHeader ("X-Sharer-User-Id") Long userId,
-                                         @RequestParam(required = false,defaultValue = "ALL") String state){
+    public List<BookingDto> findAll(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                    @RequestParam(required = false, defaultValue = "ALL") String state) {
         return service.findAllForBooker(userId, parseBookingState(state));
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> findAllOwner (@RequestHeader("X-Sharer-User-Id") Long userId,
-                                             @RequestParam(defaultValue = "ALL") String state){
+    public List<BookingDto> findAllOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                         @RequestParam(defaultValue = "ALL") String state) {
         return service.findAllForOwner(userId, parseBookingState(state));
     }
 
-    private State parseBookingState(String state){
-        try{
+    private State parseBookingState(String state) {
+        try {
             return State.valueOf(state);
-        } catch (IllegalArgumentException exception){
+        } catch (IllegalArgumentException exception) {
             throw new InvalidStateException("Unknown state: " + state);
         }
     }

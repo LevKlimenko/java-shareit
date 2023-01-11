@@ -11,7 +11,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Constraint(validatedBy = BookingPeriodValidator.class)
 public @interface BookingPeriodValidation {
-    String message() default  "{BookingPeriodValidation.invalid}";
+    String message() default "{BookingPeriodValidation.invalid}";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

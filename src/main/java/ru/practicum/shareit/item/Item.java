@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "items")
@@ -29,6 +31,8 @@ public class Item {
     private User owner;
     @Column(name = "request_id")
     private Long request;
+    @Transient
+    private List<Comment> comments;
 
     public Item(String name, String description, Boolean available) {
         this.name = name;

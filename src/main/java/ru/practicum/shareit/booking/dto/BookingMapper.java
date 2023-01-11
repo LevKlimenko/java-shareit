@@ -21,7 +21,7 @@ public class BookingMapper {
                 .build();
     }
 
-    public static BookingShortDto toBookingShortDto(Booking booking){
+    public static BookingShortDto toBookingShortDto(Booking booking) {
         if (booking == null) return null;
         return BookingShortDto.builder()
                 .id(booking.getId())
@@ -29,7 +29,7 @@ public class BookingMapper {
                 .build();
     }
 
-    public static Booking toBooking(BookingIncomingDto bookingIncomingDto, Item item, User booker){
+    public static Booking toBooking(BookingIncomingDto bookingIncomingDto, Item item, User booker) {
         return Booking.builder()
                 .start(bookingIncomingDto.getStart())
                 .end(bookingIncomingDto.getEnd())
@@ -37,4 +37,5 @@ public class BookingMapper {
                 .booker(booker)
                 .status(Status.WAITING)
                 .build();
-    }}
+    }
+}
