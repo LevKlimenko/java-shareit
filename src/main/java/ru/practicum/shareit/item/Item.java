@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.user.User;
 
@@ -31,6 +32,10 @@ public class Item {
     private User owner;
     @Column(name = "request_id")
     private Long request;
+    @Transient
+    private Booking lastBooking;
+    @Transient
+    private Booking nextBooking;
     @Transient
     private List<Comment> comments;
 

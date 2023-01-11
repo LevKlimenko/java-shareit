@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.shareit.booking.dto.BookingShortDto;
+import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.dto.CommentMapper;
@@ -23,23 +23,25 @@ public class ItemMapper {
 
     public static ItemDto toItemDto(Item item, List<Comment> comments) {
         ItemDto itemDto = toItemDto(item);
-        itemDto.setComments(comments
-                .stream()
-                .map(CommentMapper::toCommentDto)
-                .collect(Collectors.toList()));
+        if (comments!=null){
+            itemDto.setComments(comments
+                    .stream()
+                    .map(CommentMapper::toCommentDto)
+                    .collect(Collectors.toList()));
+        }
+
         return itemDto;
     }
 
-    public static ItemDto toItemDto(Item item, BookingShortDto lastBooking, BookingShortDto nextBooking,
+    public static ItemDto toItemDto(Item item, Booking lastBooking, Booking nextBooking,
                                     List<Comment> comments) {
         ItemDto itemDto = toItemDto(item, comments);
         if (lastBooking != null) {
-            itemDto.setLastBooking(lastBooking);
+            itemDto.setLastBooking(bookingToBookingBriefDto(lastBooking));
         }
         if (nextBooking != null) {
-            itemDto.setNextBooking(nextBooking);
+            itemDto.setNextBooking(bookingToBookingBriefDto(nextBooking));
         }
-
         return itemDto;
     }
 
@@ -49,5 +51,12 @@ public class ItemMapper {
                 itemDto.getDescription(),
                 itemDto.getAvailable()
         );
+    }
+
+    private BookingBriefDto bookingToBookingBriefDto(Booking booking){
+        BookingBriefDto mapped = new BookingBriefDto();
+        mapped.setId(booking.getId());
+        mapped.setBookerId(booking.getBooker().getId());
+        return mapped;
     }
 }

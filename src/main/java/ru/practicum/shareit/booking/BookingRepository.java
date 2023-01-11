@@ -7,10 +7,11 @@ import ru.practicum.shareit.booking.enumBooking.Status;
 import ru.practicum.shareit.exceptions.NotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    public static Sort SORT_BY_DESC = Sort.by(Sort.Direction.DESC, "start");
+    Sort SORT_BY_DESC = Sort.by(Sort.Direction.DESC, "start");
 
     default Booking get(Long id) {
         return findById(id).orElseThrow(() -> new NotFoundException("Booking with id=" + id + " not found"));
@@ -43,12 +44,19 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("select b from Booking b where b.item.owner.id=?1 and b.status=?2")
     List<Booking> findAllByOwnerAndStatus(Long userId, Status status, Sort sort);
 
-    @Query("select b from Booking b where b.item.id = ?1 and b.end<?2")
-        //@Query("select b from Booking b where b.status= 'APPROVED' and b.item in ?1")
-    Booking findLastBookingByItemId(Long itemId, LocalDateTime now, Sort sort);
+    Booking getFirstByItemIdAndEndBeforeAndStatusOrderByEndDesc(long itemId, LocalDateTime now,Status status);
 
-    @Query("select b from Booking b where b.item.id=?1 and b.start>?2")
-    Booking findNextBookingByItemId(Long itemId, LocalDateTime now, Sort sort);
+    Booking getFirstByItemIdAndStartAfterAndStatusOrderByStartAsc(long itemId, LocalDateTime now, Status status);
+
+    default Booking getLastForItem(long itemId, LocalDateTime now,Status status) {
+        return getFirstByItemIdAndEndBeforeAndStatusOrderByEndDesc(itemId, now, status);
+    }
+
+    default Booking getNextForItem(long itemId, LocalDateTime now, Status status) {
+        return getFirstByItemIdAndStartAfterAndStatusOrderByStartAsc(itemId, now, status);
+    }
+
+    List<Booking> getAllByItemIdInAndStatus(Collection<Long> itemIds,Status status);
 
     @Query("select count (b) from Booking b where b.booker.id=?1 and b.item.id=?2 and b.end<?3 " +
             "and b.status= ru.practicum.shareit.booking.enumBooking.Status.APPROVED")

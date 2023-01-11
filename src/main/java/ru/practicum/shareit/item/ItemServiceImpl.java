@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.enumBooking.Status;
 import ru.practicum.shareit.exceptions.BadRequestException;
 import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.ForbiddenException;
@@ -21,7 +21,9 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -70,14 +72,16 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto findById(Long userId, Long itemId) {
         Item item = itemRepository.get(itemId);
         if (item.getOwner().getId().equals(userId)) {
+            LocalDateTime now = LocalDateTime.now();
             return ItemMapper.toItemDto(
                     item,
-                    BookingMapper.toBookingShortDto(findLastBooking(item.getId())),
-                    BookingMapper.toBookingShortDto(findNextBooking(item.getId())),
-                    findComment(itemId));
+                    bookingRepository.getLastForItem(itemId, now, Status.APPROVED),
+                    bookingRepository.getNextForItem(itemId, now, Status.APPROVED),
+                    commentRepository.findAllByItemIdOrderByCreatedDesc(itemId));
         }
-        return ItemMapper.toItemDto(item, findComment(itemId));
+        return ItemMapper.toItemDto(item, commentRepository.findAllByItemIdOrderByCreatedDesc(itemId));
     }
+
 
     @Override
     public List<ItemDto> findByString(String s) {
@@ -86,16 +90,30 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> findByUserId(Long id) {
-        userRepository.get(id);
-        return itemRepository.findAllByOwnerId(id)
+        List<Item> items = itemRepository.findAllByOwnerId(id);
+        List<Long> itemIds = items
+                .stream()
+                .map(Item::getId)
+                .collect(Collectors.toList());
+
+        Map<Long, List<Comment>> commentsByItems = commentRepository.findAllByItemIdInOrderByCreatedDesc(itemIds)
+                .stream()
+                .collect(Collectors.groupingBy(c -> c.getItem().getId()));
+
+        Map<Long, List<Booking>> bookingsByItems = bookingRepository.getAllByItemIdInAndStatus(itemIds,Status.APPROVED)
+                .stream()
+                .collect(Collectors.groupingBy(booking -> booking.getItem().getId()));
+
+        LocalDateTime now = LocalDateTime.now();
+        return items
                 .stream()
                 .map(item -> ItemMapper.toItemDto(
                         item,
-                        BookingMapper.toBookingShortDto(findLastBooking(item.getId())),
-                        BookingMapper.toBookingShortDto(findNextBooking(item.getId())),
-                        findComment(item.getId()))
-                )
+                        findLastBooking(bookingsByItems.get(item.getId()), now),
+                        findNextBooking(bookingsByItems.get(item.getId()), now),
+                        commentsByItems.get(item.getId())))
                 .collect(Collectors.toList());
+
     }
 
     @Override
@@ -125,20 +143,30 @@ public class ItemServiceImpl implements ItemService {
         return findItem;
     }
 
-    private Booking findLastBooking(Long itemId) {
-        return bookingRepository.findLastBookingByItemId(itemId, LocalDateTime.now(), BookingRepository.SORT_BY_DESC);
-    }
-
-    private Booking findNextBooking(Long itemId) {
-        return bookingRepository.findNextBookingByItemId(itemId, LocalDateTime.now(), BookingRepository.SORT_BY_DESC);
-    }
-
     private boolean isAuthorUsedItem(Long userId, Long itemId) {
-        int count = bookingRepository.countCompletedBooking(userId, itemId, LocalDateTime.now());
-        return count > 0;
+        Integer count = bookingRepository.countCompletedBooking(userId, itemId, LocalDateTime.now());
+        return (count != null) && (count > 0);
     }
 
-    private List<Comment> findComment(long itemId) {
-        return commentRepository.findAllByItem_IdOrderByCreatedDesc(itemId);
+    private Booking findLastBooking(List<Booking> bookings, LocalDateTime now) {
+        if (bookings == null) {
+            return null;
+        }
+        return bookings
+                .stream()
+                .filter(b -> b.getEnd().isBefore(now))
+                .max(Comparator.comparing(Booking::getEnd))
+                .orElse(null);
+    }
+
+    private Booking findNextBooking(List<Booking> bookings, LocalDateTime now) {
+        if (bookings == null) {
+            return null;
+        }
+        return bookings
+                .stream()
+                .filter(b -> b.getStart().isAfter(now))
+                .min(Comparator.comparing(Booking::getStart))
+                .orElse(null);
     }
 }

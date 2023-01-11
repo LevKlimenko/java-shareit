@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.exceptions.NotFoundException;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +21,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     Optional<Item> findFirstByOwnerId(Long ownerId);
 
-    @Query("SELECT i FROM Item i where i.owner.id = ?1 order by i.id")
-    Collection<Item> findAllByOwnerId(Long id);
+    @Query("SELECT i FROM Item i where i.owner.id = ?1 order by i.id asc")
+    List<Item> findAllByOwnerId(Long id);
 }
