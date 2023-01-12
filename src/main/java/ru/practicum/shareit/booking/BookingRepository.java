@@ -44,11 +44,11 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("select b from Booking b where b.item.owner.id=?1 and b.status=?2")
     List<Booking> findAllByOwnerAndStatus(Long userId, Status status, Sort sort);
 
-    Booking getFirstByItemIdAndStartLessThanEqualAndStatusOrderByStartDesc(long itemId, LocalDateTime now,Status status);
+    Booking getFirstByItemIdAndStartLessThanEqualAndStatusOrderByStartDesc(long itemId, LocalDateTime now, Status status);
 
     Booking getFirstByItemIdAndStartAfterAndStatusOrderByStartAsc(long itemId, LocalDateTime now, Status status);
 
-    default Booking getLastForItem(long itemId, LocalDateTime now,Status status) {
+    default Booking getLastForItem(long itemId, LocalDateTime now, Status status) {
         return getFirstByItemIdAndStartLessThanEqualAndStatusOrderByStartDesc(itemId, now, status);
     }
 
@@ -56,7 +56,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         return getFirstByItemIdAndStartAfterAndStatusOrderByStartAsc(itemId, now, status);
     }
 
-    List<Booking> getAllByItemIdInAndStatus(Collection<Long> itemIds,Status status);
+    List<Booking> getAllByItemIdInAndStatus(Collection<Long> itemIds, Status status);
 
     @Query("select count (b) from Booking b where b.booker.id=?1 and b.item.id=?2 and b.end<?3 " +
             "and b.status= ru.practicum.shareit.booking.enumBooking.Status.APPROVED")
