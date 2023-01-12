@@ -2,12 +2,14 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.dto.BookingBriefDto;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.dto.CommentMapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @UtilityClass
 public class ItemMapper {
@@ -23,7 +25,7 @@ public class ItemMapper {
 
     public static ItemDto toItemDto(Item item, List<Comment> comments) {
         ItemDto itemDto = toItemDto(item);
-        if (comments!=null){
+        if (comments != null) {
             itemDto.setComments(comments
                     .stream()
                     .map(CommentMapper::toCommentDto)
@@ -53,7 +55,7 @@ public class ItemMapper {
         );
     }
 
-    private BookingBriefDto bookingToBookingBriefDto(Booking booking){
+    private BookingBriefDto bookingToBookingBriefDto(Booking booking) {
         BookingBriefDto mapped = new BookingBriefDto();
         mapped.setId(booking.getId());
         mapped.setBookerId(booking.getBooker().getId());

@@ -44,12 +44,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("select b from Booking b where b.item.owner.id=?1 and b.status=?2")
     List<Booking> findAllByOwnerAndStatus(Long userId, Status status, Sort sort);
 
-    Booking getFirstByItemIdAndEndBeforeAndStatusOrderByEndDesc(long itemId, LocalDateTime now,Status status);
+    Booking getFirstByItemIdAndStartLessThanEqualAndStatusOrderByStartDesc(long itemId, LocalDateTime now,Status status);
 
     Booking getFirstByItemIdAndStartAfterAndStatusOrderByStartAsc(long itemId, LocalDateTime now, Status status);
 
     default Booking getLastForItem(long itemId, LocalDateTime now,Status status) {
-        return getFirstByItemIdAndEndBeforeAndStatusOrderByEndDesc(itemId, now, status);
+        return getFirstByItemIdAndStartLessThanEqualAndStatusOrderByStartDesc(itemId, now, status);
     }
 
     default Booking getNextForItem(long itemId, LocalDateTime now, Status status) {

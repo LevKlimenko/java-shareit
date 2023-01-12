@@ -142,8 +142,7 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throw new InvalidStateException("Unknown state: " + state);
         }
-        return Optional.ofNullable(result)
-                .orElseGet(Collections::emptyList)
+        return result
                 .stream()
                 .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());

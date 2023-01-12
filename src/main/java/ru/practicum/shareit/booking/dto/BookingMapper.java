@@ -21,14 +21,6 @@ public class BookingMapper {
                 .build();
     }
 
-   /* public static BookingShortDto toBookingShortDto(Booking booking) {
-        if (booking == null) return null;
-        return BookingShortDto.builder()
-                .id(booking.getId())
-                .bookerId(booking.getBooker().getId())
-                .build();
-    }*/
-
     public static Booking toBooking(BookingIncomingDto bookingIncomingDto, Item item, User booker) {
         return Booking.builder()
                 .start(bookingIncomingDto.getStart())

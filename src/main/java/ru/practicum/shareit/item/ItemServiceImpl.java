@@ -100,7 +100,7 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .collect(Collectors.groupingBy(c -> c.getItem().getId()));
 
-        Map<Long, List<Booking>> bookingsByItems = bookingRepository.getAllByItemIdInAndStatus(itemIds,Status.APPROVED)
+        Map<Long, List<Booking>> bookingsByItems = bookingRepository.getAllByItemIdInAndStatus(itemIds, Status.APPROVED)
                 .stream()
                 .collect(Collectors.groupingBy(booking -> booking.getItem().getId()));
 
@@ -109,9 +109,9 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .map(item -> ItemMapper.toItemDto(
                         item,
-                        findLastBooking(bookingsByItems.get(item.getId()), now),
-                        findNextBooking(bookingsByItems.get(item.getId()), now),
-                        commentsByItems.get(item.getId())))
+                        findLastBooking(bookingsByItems.getOrDefault(item.getId(), List.of()), now),
+                        findNextBooking(bookingsByItems.getOrDefault(item.getId(), List.of()), now),
+                        commentsByItems.getOrDefault(item.getId(), List.of())))
                 .collect(Collectors.toList());
 
     }
@@ -149,20 +149,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private Booking findLastBooking(List<Booking> bookings, LocalDateTime now) {
-        if (bookings == null) {
-            return null;
-        }
         return bookings
                 .stream()
-                .filter(b -> b.getEnd().isBefore(now))
-                .max(Comparator.comparing(Booking::getEnd))
+                .filter(b -> !b.getStart().isAfter(now))
+                .max(Comparator.comparing(Booking::getStart))
                 .orElse(null);
     }
 
     private Booking findNextBooking(List<Booking> bookings, LocalDateTime now) {
-        if (bookings == null) {
-            return null;
-        }
         return bookings
                 .stream()
                 .filter(b -> b.getStart().isAfter(now))
